@@ -1,6 +1,6 @@
 import 'package:delivery_app/controller/tracking_controller.dart';
 import 'package:delivery_app/core/class/handlingdataview.dart';
-import 'package:delivery_app/core/functions/getdecodepoyline.dart';
+import 'package:delivery_app/core/constant/color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -37,6 +37,18 @@ class OrdersTracking extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Container(
+                    height: 30,
+                    child: MaterialButton(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      minWidth: 300,
+                      color: AppColor.primaryColor,
+                      textColor: Colors.white,
+                      onPressed: (){
+                        controller.donedelivery();
+                      },
+                      child: const Text("The Order has been delivered"),),
+                  )
                 ])))),
       ),
     );

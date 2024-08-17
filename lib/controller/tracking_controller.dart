@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_app/controller/orders/accepted_controller.dart';
 import 'package:delivery_app/core/class/statusrequest.dart';
+import 'package:delivery_app/core/constant/routes.dart';
 import 'package:delivery_app/core/functions/getdecodepoyline.dart';
+import 'package:delivery_app/core/services/services.dart';
 import 'package:delivery_app/data/model/ordersmodel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -15,6 +19,9 @@ class TrackingController extends GetxController {
   List<Marker> markers = [];
   late StatusRequest statusRequest = StatusRequest.success;
   late OrdersModel ordersModel;
+  MyServices myServices = Get.find();
+  Timer? timer;
+  OrdersAcceptedController ordersAcceptedController = Get.find();
 
   double? currentlat;
   double? currentlong;
@@ -22,6 +29,14 @@ class TrackingController extends GetxController {
   double? destlong;
 
   CameraPosition? cameraPosition;
+
+  donedelivery() async{
+    statusRequest = StatusRequest.loading;
+    update();
+    await ordersAcceptedController.doneDelivery(ordersModel.ordersId!);
+    Get.offAllNamed(AppRoute.homepage);
+
+  }
 
   getCurrentLocation() {
     cameraPosition = CameraPosition(
@@ -53,8 +68,19 @@ class TrackingController extends GetxController {
       update();
     });
   }
+  refreshLocation() async{
+    await Future.delayed(const Duration(seconds: 2));
+    timer = Timer.periodic(Duration(seconds: 10), (timer){
+      FirebaseFirestore.instance.collection("delivery").doc(ordersModel.ordersId.toString()).set({
+        "lat": currentlat,
+        "long" : currentlong,
+        "deliveryid": myServices.sharedPreferences.getInt("id")
+      });
 
-  
+    });
+
+  }
+
 
   initPolyLine() async{
     destlat = ordersModel.addressLat;
@@ -70,6 +96,7 @@ class TrackingController extends GetxController {
     ordersModel = Get.arguments['ordersmodel'];
     
     getCurrentLocation();
+    refreshLocation();
     initPolyLine();
     super.onInit();
   }
@@ -78,6 +105,7 @@ class TrackingController extends GetxController {
   void onClose() {
     positionStream!.cancel();
     gmc!.dispose();
+    timer!.cancel();
     super.onClose();
   }
 }

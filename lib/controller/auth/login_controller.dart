@@ -1,9 +1,9 @@
-
 import 'package:delivery_app/core/class/statusrequest.dart';
 import 'package:delivery_app/core/constant/routes.dart';
 import 'package:delivery_app/core/functions/handlingdatacontroller.dart';
 import 'package:delivery_app/core/services/services.dart';
 import 'package:delivery_app/data/datasource/remote/auth/login.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,13 +46,13 @@ class LoginControllerImp extends LoginController {
             myServices.sharedPreferences
                 .setInt("id", response['data']['delivery']['delivery_id']);
             int deliveryid = myServices.sharedPreferences.getInt("id")!;
-            
-            myServices.sharedPreferences
-                .setString("username", response['data']['delivery']['delivery_name']);
-            myServices.sharedPreferences
-                .setString("email", response['data']['delivery']['delivery_email']);
-            myServices.sharedPreferences
-                .setString("phone", response['data']['delivery']['delivery_phone']);
+
+            myServices.sharedPreferences.setString(
+                "username", response['data']['delivery']['delivery_name']);
+            myServices.sharedPreferences.setString(
+                "email", response['data']['delivery']['delivery_email']);
+            myServices.sharedPreferences.setString(
+                "phone", response['data']['delivery']['delivery_phone']);
             myServices.sharedPreferences.setString("step", "2");
 
             // FirebaseMessaging.instance.subscribeToTopic("users");

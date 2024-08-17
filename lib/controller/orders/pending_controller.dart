@@ -4,6 +4,7 @@ import 'package:delivery_app/core/functions/handlingdatacontroller.dart';
 import 'package:delivery_app/core/services/services.dart';
 import 'package:delivery_app/data/datasource/remote/orders/pending_data.dart';
 import 'package:delivery_app/data/model/ordersmodel.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 
 class OrdersPendingController extends GetxController {
@@ -96,6 +97,10 @@ class OrdersPendingController extends GetxController {
 
   @override
   void onInit() {
+    FirebaseMessaging.instance.getToken().then((value) {
+      print(value);
+      String? token = value;
+    });
     getOrders();
     super.onInit();
   }
