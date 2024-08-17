@@ -1,3 +1,4 @@
+import 'package:delivery_app/core/constant/key.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -9,7 +10,7 @@ Future<Set<Polyline>> getPolyLine(lat, long, destlat, destlong) async {
   Set<Polyline> polylineSet = {};
 
   String url =
-      'https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$destlat,$destlong&key=AIzaSyB9D7nPuNJJHNFB-IgIPYZfXMri_OHBPNs';
+      'https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$destlat,$destlong&key=$googleApiKey';
   try {
     Dio dio = Dio();
     var response = await dio.post(url);
