@@ -77,7 +77,7 @@ class OrdersPendingController extends GetxController {
     if (StatusRequest.success == statusRequest) {
       // Start backend
       if (response['status'] == "success") {
-        TrackingController trackingController = Get.put(TrackingController());
+        // TrackingController trackingController = Get.put(TrackingController());
         
 
 

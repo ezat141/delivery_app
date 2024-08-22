@@ -47,6 +47,7 @@ dependencies:
   http: ^1.2.2
   jiffy: ^6.3.1
   lottie: ^3.1.0
+  permission_handler: ^11.3.1
   rating_dialog: ^2.0.4
   shared_preferences: ^2.2.2
   url_launcher: ^6.3.0

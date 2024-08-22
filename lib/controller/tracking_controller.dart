@@ -10,9 +10,10 @@ import 'package:delivery_app/data/model/ordersmodel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TrackingController extends GetxController {
-    Set<Polyline> polylineSet = {};
+  Set<Polyline> polylineSet = {};
 
   StreamSubscription<Position>? positionStream;
   GoogleMapController? gmc;
@@ -30,71 +31,80 @@ class TrackingController extends GetxController {
 
   CameraPosition? cameraPosition;
 
-  donedelivery() async{
+  donedelivery() async {
     statusRequest = StatusRequest.loading;
     update();
     await ordersAcceptedController.doneDelivery(ordersModel.ordersId!);
     Get.offAllNamed(AppRoute.homepage);
-
   }
 
-  getCurrentLocation() {
-    cameraPosition = CameraPosition(
-      target: LatLng(ordersModel.addressLat!, ordersModel.addressLong!),
-      zoom: 12.4746,
-    );
+  getCurrentLocation() async {
+    var status = await Permission.location.request();
 
-    markers.add(Marker(
-      markerId: const MarkerId("dest"),
-      position: LatLng(ordersModel.addressLat!, ordersModel.addressLong!),
-    ));
-    positionStream =
-        Geolocator.getPositionStream().listen((Position? position) {
-      print("================== Current Postion");
-      currentlat = position!.latitude;
-      currentlong = position.longitude;
-      print(position.latitude);
-      print(position.longitude);
+    if (status.isGranted) {
+      cameraPosition = CameraPosition(
+        target: LatLng(ordersModel.addressLat!, ordersModel.addressLong!),
+        zoom: 12.4746,
+      );
 
-      if (gmc != null) {
-        gmc!.animateCamera(
-            CameraUpdate.newLatLng(LatLng(currentlat!, currentlong!)));
-      }
-      markers.removeWhere((element) => element.markerId.value == "current");
       markers.add(Marker(
-        markerId: const MarkerId("current"),
-        position: LatLng(position.latitude, position.longitude),
+        markerId: const MarkerId("dest"),
+        position: LatLng(ordersModel.addressLat!, ordersModel.addressLong!),
       ));
+      positionStream =
+          Geolocator.getPositionStream().listen((Position? position) {
+        print("================== Current Postion");
+        currentlat = position!.latitude;
+        currentlong = position.longitude;
+        print(position.latitude);
+        print(position.longitude);
+
+        if (gmc != null) {
+          gmc!.animateCamera(
+              CameraUpdate.newLatLng(LatLng(currentlat!, currentlong!)));
+        }
+        markers.removeWhere((element) => element.markerId.value == "current");
+        markers.add(Marker(
+          markerId: const MarkerId("current"),
+          position: LatLng(position.latitude, position.longitude),
+        ));
+        update();
+      });
+    } else {
+      // Handle the case when permission is denied
+      print('Location permission denied');
+      statusRequest = StatusRequest.failure;
       update();
-    });
+    }
   }
-  refreshLocation() async{
+
+  refreshLocation() async {
     await Future.delayed(const Duration(seconds: 2));
-    timer = Timer.periodic(Duration(seconds: 10), (timer){
-      FirebaseFirestore.instance.collection("delivery").doc(ordersModel.ordersId.toString()).set({
+    timer = Timer.periodic(Duration(seconds: 10), (timer) {
+      FirebaseFirestore.instance
+          .collection("delivery")
+          .doc(ordersModel.ordersId.toString())
+          .set({
         "lat": currentlat,
-        "long" : currentlong,
+        "long": currentlong,
         "deliveryid": myServices.sharedPreferences.getInt("id")
       });
-
     });
-
   }
 
-
-  initPolyLine() async{
+  initPolyLine() async {
     destlat = ordersModel.addressLat;
     destlong = ordersModel.addressLong;
     await Future.delayed(const Duration(seconds: 1));
-    polylineSet= await getPolyLine(currentlat!, currentlong, destlat, destlong);
+    polylineSet =
+        await getPolyLine(currentlat!, currentlong!, destlat, destlong);
     update();
-
   }
 
   @override
   void onInit() {
     ordersModel = Get.arguments['ordersmodel'];
-    
+
     getCurrentLocation();
     refreshLocation();
     initPolyLine();

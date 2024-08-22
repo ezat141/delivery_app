@@ -1,3 +1,4 @@
+import 'package:delivery_app/controller/orders/details_controller.dart';
 import 'package:delivery_app/controller/tracking_controller.dart';
 import 'package:delivery_app/core/class/handlingdataview.dart';
 import 'package:delivery_app/core/constant/color.dart';
@@ -10,7 +11,8 @@ class OrdersTracking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TrackingController trackingController = Get.put(TrackingController());
+    TrackingController controller = Get.put(TrackingController());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Orders Tracking'),
@@ -26,28 +28,36 @@ class OrdersTracking extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       height: 300,
                       width: double.infinity,
-                      child: GoogleMap(
-                        polylines: controller.polylineSet,
-                        mapType: MapType.hybrid,
-                        markers: controller.markers.toSet(),
-                        initialCameraPosition: controller.cameraPosition!,
-                        onMapCreated: (GoogleMapController controllermap) {
-                          controller.gmc = controllermap;
-                        },
-                      ),
+                      child: controller.cameraPosition != null
+                          ? GoogleMap(
+                              polylines: controller.polylineSet,
+                              mapType: MapType.hybrid,
+                              markers: controller.markers.toSet(),
+                              initialCameraPosition: controller.cameraPosition!,
+                              //?? const CameraPosition(target: LatLng(0, 0), zoom: 1),
+                              onMapCreated:
+                                  (GoogleMapController controllermap) {
+                                controller.gmc = controllermap;
+                              },
+                            )
+                          : Center(
+                              child: Text(
+                                  "Loading map...")), // Show a loading message
+                      // Show a loading message
                     ),
                   ),
                   Container(
-                    height: 30,
+                    height: 40,
                     child: MaterialButton(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       minWidth: 300,
                       color: AppColor.primaryColor,
                       textColor: Colors.white,
-                      onPressed: (){
+                      onPressed: () {
                         controller.donedelivery();
                       },
-                      child: const Text("The Order has been delivered"),),
+                      child: const Text("The Order has been delivered"),
+                    ),
                   )
                 ])))),
       ),
